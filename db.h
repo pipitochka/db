@@ -180,7 +180,53 @@ private:
 
     Table* deleteExpression(std::vector<Token>& tokens) {}
 
-    Table* select(std::vector<Token>& tokens) {}
+    Table* select(std::vector<Token>& tokens) {
+        std::vector<std::string> names;
+        int i = 1;
+        while (i < tokens.size()) {
+            if (tokens[i].getTokenValue() == "from") {
+                break;
+            }
+            else if(tokens[i].getTokenValue() != ",") {
+                names.push_back(tokens[i].getTokenValue());
+            }
+            i += 1;
+        }
+        std::string name = tokens[i + 1].getTokenValue();
+        Table* table = database.findTable(name);
+        Node* root = MakeAST(tokens, i+3, tokens.size());
+        std::vector<Restriction> restrictions = table->getRestriction();
+        std::vector<Statement> statements = table->getStatements();
+        std::vector<Restriction> newRestrictions;
+        std::vector<Statement> newStatements;
+        for (int j = 0; j < statements.size(); j++) {
+            std::variant<int32_t, bool, std::string, bytes> q;
+            q = CalculateValue(restrictions, statements[j], root);
+            if (std::get<bool>(q)) {
+                newStatements.push_back(statements[j]);
+            }
+        }
+        for (int j = restrictions.size() - 1; j >= 0 ; j--) {
+            bool found = false;
+            for (auto& nname : names) {
+                if (nname == restrictions[j].name) {
+                    if (!found) {
+                        newRestrictions.push_back(restrictions[j]);
+                        found = true;
+                    }
+                }
+            }
+            if (!found) {
+                for (auto& re : newStatements ) {
+                    re.data.erase(re.data.begin() + j);
+                }
+            }
+
+        }
+        std::reverse(newRestrictions.begin(), newRestrictions.end());
+        Table* newTable = new Table(newRestrictions, newStatements);
+        return newTable;
+    }
 
     Table* join(std::vector<Token>& tokens) {}
 

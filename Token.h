@@ -118,8 +118,12 @@ int isBinOperator(int i, std::string &data, std::vector<Token> &tokens) {
         tokens.push_back(Token(OPERATOR, data.substr(i, 1), 3));
         return 1;
     }
-    if (data[i] == '=') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 10));
+    if (data[i] == '=' && data[i + 1] == '=') {
+        tokens.push_back(Token(OPERATOR, data.substr(i, 2), 10));
+        return 2;
+    }
+    if (data[i] == '=' && data[i + 1] != '=') {
+        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 16));
         return 1;
     }
     if (data[i] == '|') {

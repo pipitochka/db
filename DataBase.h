@@ -141,6 +141,10 @@ public:
         name = _name;
     }
 
+    Table(const std::vector<Restriction>& _restrictions, const std::vector<Statement>& _statements) {
+        restrictions = _restrictions;
+        statements = _statements;
+    }
     void addStatement(std::vector<std::pair<int, std::variant<int32_t, bool, std::string, bytes>>> &statement) {
         try {
             Statement newStatement;
@@ -268,11 +272,27 @@ public:
     void deleteStatement(int i) {
         statements.erase(statements.begin() + i);
     }
+
+    std::vector<Statement>& getStatements() {
+        return statements;
+    }
+    std::vector<Restriction>& getRestriction() {
+        return restrictions;
+    }
+
+    void rename(std::string& newName) {
+        name = newName;
+    }
 };
 
 class DataBase {
 private:
     std::vector<Table> tables;
+
+
+public:
+    DataBase()= default;
+
     Table* findTable(const std::string& name) {
         for (auto& table : tables) {
             if (table.getName() == name) {
@@ -281,9 +301,6 @@ private:
         }
         return nullptr;
     }
-
-public:
-    DataBase()= default;
 
     Table* CreateTable(const std::string &name, std::vector<Restriction> &restrictions) {
         try {

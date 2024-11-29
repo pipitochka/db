@@ -23,17 +23,26 @@ is_admin = true,
     std::string query13 = {R"(5 + (1 + 2) * (3 + 4))"};
     std::string query14 = {R"(1 + (2 * 3))"};
     std::string query15 = {R"(1 > 3)"};
+    std::string query16 = {R"(select id, login from users where is_admin || id < 10)"};
 
     // db q;
     // q.execute(query1);
     // q.execute(query3);
     // q.execute(query5);
-    std::vector<Restriction> restrictions;
-    Statement statement;
-     std::vector<Token> data;
-     makeListOfTokens(query15, data);
-     Node* ast = MakeAST(data, 0, data.size());
-    std::variant<int32_t, bool, std::string, bytes> qq = CalculateValue(restrictions, statement, ast);
-     deleteTree(ast);
+    // std::vector<Restriction> restrictions;
+    // Statement statement;
+    //  std::vector<Token> data;
+    //  makeListOfTokens(query15, data);
+    //  Node* ast = MakeAST(data, 0, data.size());
+    // std::variant<int32_t, bool, std::string, bytes> qq = CalculateValue(restrictions, statement, ast);
+    //  deleteTree(ast);
+    db q;
+    q.execute(query1);
+    q.execute(query3);
+    q.execute(query5);
+    Table* table = q.execute(query16);
     return 0;
+
+
+
 }

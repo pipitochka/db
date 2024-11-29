@@ -198,6 +198,23 @@ std::variant<int32_t, bool, std::string, bytes> CalculateValue(std::vector<Restr
             }
             else if (root->token.getTokenValue() == "=") {
                 if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right)) {
+                    return std::get<int32_t>(left) = std::get<int32_t>(right);
+                }
+                else if (std::holds_alternative<bytes>(left) && std::holds_alternative<bytes>(right)) {
+                    return std::get<bytes>(left) = std::get<bytes>(right);
+                }
+                else if (std::holds_alternative<bool>(left) && std::holds_alternative<bool>(right)) {
+                    return std::get<bool>(left) = std::get<bool>(right);
+                }
+                else if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
+                    return std::get<std::string>(left) = std::get<std::string>(right);
+                }
+                else {
+                    throw std::invalid_argument("Invalid text");
+                }
+            }
+            else if (root->token.getTokenValue() == "==") {
+                if (std::holds_alternative<int32_t>(left) && std::holds_alternative<int32_t>(right)) {
                     return std::get<int32_t>(left) == std::get<int32_t>(right);
                 }
                 else if (std::holds_alternative<bytes>(left) && std::holds_alternative<bytes>(right)) {
