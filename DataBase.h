@@ -1,6 +1,7 @@
 
 #ifndef DATABASE_H
 #define DATABASE_H
+#include <iostream>
 #include <vector>
 #include <sstream>
 #include <string>
@@ -14,13 +15,15 @@ public:
         _bytes = bytes;
     };
 
-    bool operator== (const bytes &other) const {
-        return _bytes == other._bytes;
-    }
-
     int size() const {
         return _bytes.size();
     }
+
+    bool operator<=> (const bytes &other) const { return true; }
+
+    bool operator==(const bytes & get) const{};
+
+    bool operator!=(const bytes & get) const{};
 };
 
 bytes convertStringToBytes(std::string& str) {
@@ -50,6 +53,15 @@ struct Restriction {
     std::pair<std::string, int> type;
     std::pair<bool, std::variant<int32_t, bool, std::string, bytes>> value;
     int atribute[3];
+};
+
+int getNumberOfRestrictions(std::vector<Restriction> &restrictions, std::string name) {
+    for (int i = 0; i < restrictions.size(); i++) {
+        if (restrictions[i].name == name) {
+            return i;
+        }
+    }
+    return -1;
 };
 
 struct Statement {

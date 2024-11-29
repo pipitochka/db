@@ -129,8 +129,6 @@ int isBinOperator(int i, std::string &data, std::vector<Token> &tokens) {
     return 0;
 }
 
-
-
 int isIdentifier(int i, std::string &data, std::vector<Token> &tokens) {
     if ((data[i] <= 'Z' && data[i] >= 'A') ||  (data[i] <= 'z' && data[i] >= 'a') || (data[i] == '_')) {
         int j = i + 1;
