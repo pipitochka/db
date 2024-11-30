@@ -42,7 +42,4 @@ is_admin = true,
     q.execute(query5);
     Table* table = q.execute(query16);
     return 0;
-
-
-
 }

@@ -52,101 +52,99 @@ private:
         Restriction r;
         std::vector<Restriction> restrictions;
         int i = 4;
-        try {
-            while (i < tokens.size() && tokens[i].getTokenValue() != ")") {
-                makeBase(r);
-                if (tokens[i].getTokenValue() == "{") {
-                    i++;
-                    bool flag = false;
-                    while (lower(tokens[i].getTokenValue()) != "}") {
-                        flag = false;
-                        if (tokens[i].getTokenValue() == "unique") {
-                            r.atribute[0] = 1;
-                            flag = true;
-                        }
-                        else if (lower(tokens[i].getTokenValue()) == "autoincrement") {
-                            r.atribute[1] = 1;
-                            flag = true;
-                        }
-                        else if (lower(tokens[i].getTokenValue()) == "key") {
-                            r.atribute[2] = 1;
-                            flag = true;
-                        }
-                        if (tokens[i+1].getTokenValue() == ",") {
-                            i += 1;
-                        }
-                        i+=1;
-                        if (flag != true) {
-                            throw std::invalid_argument("Wrong syntaxis");
-                        }
+        while (i < tokens.size() && tokens[i].getTokenValue() != ")") {
+            makeBase(r);
+            if (tokens[i].getTokenValue() == "{") {
+                i++;
+                bool flag = false;
+                while (lower(tokens[i].getTokenValue()) != "}") {
+                    flag = false;
+                    if (tokens[i].getTokenValue() == "unique") {
+                        r.atribute[0] = 1;
+                        flag = true;
                     }
-                    i++;
-                }
-                r.name = tokens[i].getTokenValue();
-                i+= 2;
-                if (tokens[i].getTokenValue() == "bytes" || tokens[i].getTokenValue() == "string") {
-                    if (stoi(tokens[i+2].getTokenValue()) == -1) {
-                        throw std::invalid_argument("Wrong syntaxis");
+                    else if (lower(tokens[i].getTokenValue()) == "autoincrement") {
+                        r.atribute[1] = 1;
+                        flag = true;
                     }
-                    r.type = std::make_pair(tokens[i].getTokenValue(), stoi(tokens[i+2].getTokenValue()));
-                    i += 4;
-                }
-                else {
-                    r.type = {tokens[i].getTokenValue(), 0};
-                    i += 1;
-                }
-                if (i < tokens.size() && tokens[i].getTokenValue() == "=") {
-                    if (i + 1 < tokens.size()) {
-                        switch (r.type.first[0]) {
-                            case 'i':
-                                r.value = {1, stoi(tokens[i+1].getTokenValue())};
-                                break;
-                            case 's':
-                                r.value = {1, tokens[i+1].getTokenValue()};
-                                break;
-                            case 'b':
-                                switch (r.type.first[1]) {
-                                    case 'o':
-                                        if (tokens[i+1].getTokenValue() == "true") {
-                                            r.value = {1, true};
-                                        }
-                                        else {
-                                            r.value = {1, false};
-                                        }
-                                        break;
-                                    case 'y':
-                                        r.value = {1, convertStringToBytes(tokens[i+1].getTokenValue())};
-                                        break;
-                                    default:
-                                        throw std::invalid_argument("Wrong syntaxis");
-                                }
-                            break;
-                            default:
-                                throw std::invalid_argument("Wrong syntaxis");
-                        }
-                        i += 2;
-                        if (tokens[i + 1].getTokenValue() == ",") {i++;}
+                    else if (lower(tokens[i].getTokenValue()) == "key") {
+                        r.atribute[2] = 1;
+                        flag = true;
                     }
-                    else {
+                    if (tokens[i+1].getTokenValue() == ",") {
+                        i += 1;
+                    }
+                    i+=1;
+                    if (flag != true) {
                         throw std::invalid_argument("Wrong syntaxis");
                     }
                 }
-                else {
-                    if (tokens[i].getTokenValue() == ")") {
-                        restrictions.push_back(r);
-                        break;
-                    }
+                i++;
+            }
+            r.name = tokens[i].getTokenValue();
+            i+= 2;
+            if (tokens[i].getTokenValue() == "bytes") {
+                if (stoi(tokens[i+2].getTokenValue()) == -1) {
+                    throw std::invalid_argument("Wrong syntaxis");
                 }
-                restrictions.push_back(r);
+                r.type = std::make_pair(byte, stoi(tokens[i+2].getTokenValue()));
+                i += 4;
+            }
+            else if (tokens[i].getTokenValue() == "string") {
+                if (stoi(tokens[i+2].getTokenValue()) == -1) {
+                    throw std::invalid_argument("Wrong syntaxis");
+                }
+                r.type = std::make_pair(string, stoi(tokens[i+2].getTokenValue()));
+                i += 4;
+            }
+            else if (tokens[i].getTokenValue() == "int32") {
+                r.type = {int_32, 0};
                 i += 1;
             }
-            database.CreateTable(name, restrictions);
+            else if (tokens[i].getTokenValue() == "bool") {
+                r.type = {boolean, 0};
+                i += 1;
+            }
+            if (i < tokens.size() && tokens[i].getTokenValue() == "=") {
+                if (i + 1 < tokens.size()) {
+                    switch (r.type.first) {
+                        case int_32:
+                            r.value = {1, stoi(tokens[i+1].getTokenValue())};
+                            break;
+                        case string:
+                            r.value = {1, tokens[i+1].getTokenValue()};
+                            break;
+                        case boolean:
+                            if (tokens[i+1].getTokenValue() == "true") {
+                                r.value = {1, true};
+                            }
+                            else {
+                                r.value = {1, false};
+                            }
+                            break;
+                        case byte:
+                            r.value = {1, convertStringToBytes(tokens[i+1].getTokenValue())};
+                            break;
+                        default:
+                            throw std::invalid_argument("Wrong syntaxis");
+                    }
+                    i += 2;
+                    if (tokens[i + 1].getTokenValue() == ",") {i++;}
+                }
+                else {
+                    throw std::invalid_argument("Wrong syntaxis");
+                }
+            }
+            else {
+                if (tokens[i].getTokenValue() == ")") {
+                    restrictions.push_back(r);
+                    break;
+                }
+            }
+            restrictions.push_back(r);
+            i += 1;
         }
-        catch (std::invalid_argument& e) {
-            std::cout << e.what() << std::endl;
-        }
-
-
+        database.CreateTable(name, restrictions);
     }
 
     Table* insert(std::vector<Token>& tokens) {

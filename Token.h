@@ -185,27 +185,20 @@ int isDelimiter(int i, std::string &data, std::vector<Token> &tokens) {
 
 void makeListOfTokens(std::string& s, std::vector<Token> &data) {
     int i = 0;
-
-    try {
-        int j = 0;
-        while (i < s.size()) {
-            j++;
-            while (s[i] == ' ' || s[i] == '\n'){i++;}
-            i+= isByte(i, s, data);
-            i+= isNubmer(i, s, data);
-            i+= isString(i, s, data);
-            i+= isBinOperator(i, s, data);
-            i+= isIdentifier(i, s, data);
-            i+= isDelimiter(i, s, data);
-            if (j > s.size() * 10) {
-                throw std::runtime_error("Invalid syntax");
-            }
+    int j = 0;
+    while (i < s.size()) {
+        j++;
+        while (s[i] == ' ' || s[i] == '\n'){i++;}
+        i+= isByte(i, s, data);
+        i+= isNubmer(i, s, data);
+        i+= isString(i, s, data);
+        i+= isBinOperator(i, s, data);
+        i+= isIdentifier(i, s, data);
+        i+= isDelimiter(i, s, data);
+        if (j > s.size() * 10) {
+            throw std::runtime_error("Invalid syntax");
         }
     }
-    catch(std::invalid_argument& e) {
-        std::cout << e.what() << std::endl;
-    }
-
 }
 
 #endif //TOKEN_H
