@@ -297,5 +297,9 @@ public:
             std::cout << e.what() << std::endl;
         }
     }
+
+    void addTable(Table* table) {
+        database.addTable(*table);
+    }
 };
 #endif //DB_H

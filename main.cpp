@@ -41,5 +41,8 @@ is_admin = true,
     q.execute(query3);
     q.execute(query5);
     Table* table = q.execute(query16);
+    std::string qq{"afasfaa"};
+    table->rename(qq);
+    q.addTable(table);
     return 0;
 }

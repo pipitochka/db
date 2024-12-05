@@ -237,6 +237,16 @@ public:
         }
     }
 
+    Table* CreateTable(Table* table) {
+        Table* ptr = findTable(table->getName());
+        if (ptr == nullptr) {
+            tables.push_back(*table);
+        }
+        else {
+            throw std::invalid_argument("Table already exists");
+        }
+    }
+
     Table* Insert(std::string &name, std::vector<std::pair<int, std::variant<int32_t, bool, std::string, bytes>>> &statements) {
         Table* q = findTable(name);
         if (q == nullptr) {
