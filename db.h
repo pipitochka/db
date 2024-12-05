@@ -1,6 +1,6 @@
 #ifndef DB_H
 #define DB_H
-#include "Database.h"
+#include "DataBase.h"
 #include "Parser.h"
 
 std::string makeLower(std::string& s) {
