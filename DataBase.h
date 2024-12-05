@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <variant>
 #include "bytes.h"
 
 enum types {int_32, byte, string, boolean};
