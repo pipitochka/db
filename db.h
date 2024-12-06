@@ -214,7 +214,26 @@ private:
 
     Table* join(std::vector<Token>& tokens) {}
 
-    Table* update(std::vector<Token>& tokens) {}
+    Table* update(Node* left, Node* right, Table* table) {
+        std::vector<Restriction> restrictions = table->getRestriction();
+        std::vector<Statement> statements = table->getStatements();
+        for (int j = 0; j < statements.size(); j++) {
+            std::variant<int32_t, bool, std::string, bytes> q;
+            q = CalculateValue(restrictions, statements[j], right);
+            if (std::get<bool>(q)) {
+                for (int k = 0; k < restrictions.size(); k++) {
+                    for (int l = 0; l < left->lines.size(); l++) {
+                        if (left->lines[l] == restrictions[k].name) {
+                            q = CalculateValue(restrictions, statements[j], left->qwe[l]);
+                            statements[j].data[k] = q;
+                        }
+                    }
+                }
+            }
+        }
+        table->changeStatement(statements);
+        return table;
+    }
 
     Table* createIndex(std::vector<Token>& tokens) {}
 
@@ -233,11 +252,22 @@ private:
                     return select(root->left, root->right, table);
                 }
             }
+            if (root->token.value == "update") {
+                if (root->mid->token.type == IDENT) {
+                    Table* table = database.findTable(root->mid->token.value);
+                    return update(root->left, root->right, table);
+                }
+                else {
+                    Table* table = std::get<Table*>(Parse(root->mid));
+                    return update(root->left, root->right, table);
+                }
+            }
         }
         else {
             throw std::invalid_argument("Invalid text");
         }
     }
+
 public:
     db() = default;
     Table* execute(std::string& data) {
@@ -267,11 +297,12 @@ public:
                     return q;
                 }
                 if (tokens[0].value == "update") {
-                    Table* q = update(tokens);
+                    Node* q = MakeAST(tokens, 0, tokens.size());
+                    Table* qq = std::get<Table*>(Parse(q));
                     if (q == nullptr) {
-                        throw std::invalid_argument("Udpade failed");
+                        throw std::invalid_argument("Select failed");
                     }
-                    return q;
+                    return qq;
                 }
                 if (tokens[0].value == "select") {
                     Node* q = MakeAST(tokens, 0, tokens.size());
@@ -289,7 +320,7 @@ public:
                     return q;
                 }
                 if (tokens[0].value == "create" && tokens[2].value == "index") {
-                    Table* q = update(tokens);
+                    Table* q = join(tokens);
                     if (q == nullptr) {
                         throw std::invalid_argument("Creation index failed");
                     }

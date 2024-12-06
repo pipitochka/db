@@ -24,6 +24,9 @@ is_admin = true,
     std::string query14 = {R"(1 + (2 * 3))"};
     std::string query15 = {R"(1 > 3)"};
     std::string query16 = {R"(select id, login from users where is_admin || id < 10)"};
+    std::string query17 = {R"(update users set is_admin = true where login == "vasya")"};
+    std::string query18 = {R"(update users set login = login + "_deleted", is_admin = false where password_hash < 0x00000000ffffffff)"};
+
 
     // std::vector<Token> data;
     // makeListOfTokens(query16, data);
@@ -48,5 +51,7 @@ is_admin = true,
     std::string qq{"afasfaa"};
     table->rename(qq);
     q.addTable(table);
+    q.execute(query17);
+    q.execute(query18);
     return 0;
 }

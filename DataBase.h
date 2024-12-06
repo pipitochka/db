@@ -86,6 +86,13 @@ public:
     std::string getName() {
         return name;
     }
+    void changeRestrction(std::vector<Restriction>& _restrictions) {
+        restrictions = _restrictions;
+    }
+
+    void changeStatement(std::vector<Statement>& _statements) {
+        statements = _statements;
+    }
 
     Table(const std::string &_name, const std::vector<Restriction>& _restrictions) {
         restrictions = _restrictions;

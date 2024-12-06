@@ -11,6 +11,7 @@ public:
     Node* parent;
     Node* mid;
     std::vector<std::string> lines;
+    std::vector<Node*> qwe;
 };
 
 int CheckNice(std::vector<Token> &data, int i) {
@@ -47,7 +48,7 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
             }
 
             }
-        else if (tokens[i].type == NUM || tokens[i].type == BYTES || tokens[i].type == STRING || tokens[i].type == IDENT) {
+        else if (tokens[i].type == NUM || tokens[i].type == BOOL|| tokens[i].type == BYTES || tokens[i].type == STRING || tokens[i].type == IDENT) {
             Node* a = new Node({tokens[i], nullptr, nullptr, nullptr});
             if (q != nullptr) {
                 q->right = a;
@@ -105,6 +106,50 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
                 }
                 i = t;
             }
+            if (tokens[i].value == "update") {
+                Node* a = new Node({tokens[i], nullptr, nullptr, nullptr, nullptr});
+                int kk = t;
+                while (tokens[kk].value != "where") {
+                    kk--;
+                }
+
+                Node* d = new Node({Token({NUL}), nullptr, nullptr, nullptr, nullptr});
+                d = MakeAST(tokens, kk + 1, t);
+                d->parent = a;
+                a->right = d;
+
+                while (tokens[kk].value != "set") {
+                    kk--;
+                }
+                Node* c = new Node({Token({NUL}), nullptr, nullptr, nullptr, nullptr});
+                c = MakeAST(tokens, 1, kk);
+                c->parent = a;
+                a->mid = c;
+
+                Node* b = new Node({Token({NUL}), nullptr, nullptr, nullptr, nullptr});
+                while (tokens[kk].value != "where") {
+                    kk++;
+                    int qwe = kk + 2;
+                    b->lines.push_back(tokens[kk].value);
+                    kk++;
+                    while (tokens[kk].value != "where" && tokens[kk].value != ",") {
+                        kk++;
+                    }
+                    Node *qq = MakeAST(tokens, qwe, kk);
+                    b->qwe.push_back(qq);
+                }
+                b->parent = a;
+                a->left = b;
+
+                if (q != nullptr) {
+                    q->right = a;
+                    a->parent = q;
+                }
+                else {
+                    q = a;
+                }
+                i = t;
+            }
         }
     }
 
@@ -142,6 +187,14 @@ std::variant<int32_t, bool, std::string, bytes> CalculateValue(std::vector<Restr
             else if (root->token.type == IDENT) {
                 int i = getNumberOfRestrictions(restrictions, root->token.value);
                 return statement.data[i];
+            }
+            else if (root->token.type == BOOL) {
+                if (root->token.value == "true") {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
         }
         else if (root->left != nullptr && root->right != nullptr) {

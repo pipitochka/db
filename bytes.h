@@ -17,11 +17,26 @@ public:
         return _bytes.size() / 2;
     }
 
-    bool operator<=> (const bytes &other) const { return true; }
+    std::strong_ordering operator<=> (const bytes &other) const {
+        return _bytes <=> other._bytes;
+    }
 
-    bool operator==(const bytes & get) const{};
+    bool operator==(const bytes & get) const {
+        bool equal = true;
+        if (_bytes.size() != get.size()) {
+            return false;
+        }
+        for (int i = 0; i < _bytes.size(); i++) {
+            if (_bytes[i] != get._bytes[i]) {
+                equal = false;
+            }
+        }
+        return equal;
+    };
 
-    bool operator!=(const bytes & get) const{};
+    bool operator!=(const bytes & get) const {
+        return !(*this == get);
+    };
 
     bytes& get(bytes& qwe) {
         return qwe;

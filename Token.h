@@ -3,7 +3,7 @@
 
 std::string keywords[] = { "insert",  "select", "update", "join", "delete"};
 
-enum tok_names {NUL, KWORD, IDENT, NUM, BYTES, STRING, OPERATOR, DELIM};
+enum tok_names {NUL, KWORD, IDENT, NUM, BYTES, STRING, OPERATOR, DELIM, BOOL};
 
 struct Token {
     enum tok_names type;
@@ -117,6 +117,10 @@ int isIdentifier(int i, std::string &data, std::vector<Token> &tokens) {
                 tokens.push_back(Token({KWORD, element}));
                 return j - i;
             }
+        }
+        if (token_value == "true" || token_value == "false") {
+            tokens.push_back(Token({BOOL, token_value}));
+            return token_value.length();
         }
         if (lower(token_value) == "create") {
             j++;
