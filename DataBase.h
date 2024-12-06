@@ -104,6 +104,13 @@ public:
         statements = _statements;
     }
 
+    Table(std::vector<Restriction>& _restrictions) {
+        restrictions = _restrictions;
+    }
+
+    void addStatement(Statement &statement) {
+        statements.push_back(statement);
+    }
     void addStatement(std::vector<std::pair<int, std::variant<int32_t, bool, std::string, bytes>>> &statement) {
     Statement newStatement;
     for (size_t i = 0; i < restrictions.size(); i++) {

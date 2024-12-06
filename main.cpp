@@ -30,6 +30,13 @@ is_admin = true,
     std::string query20= {R"(insert (,"vasy", 0xdeadbeefdeadbeef) to users)"};
     std::string query21 = {R"(delete users where |login| % 2 == 0)"};
 
+    std::string query22 = {R"(create table abacaba (name: string[32], age : int32))"};
+    std::string query23 = {R"(insert (name = "vasya", age = 12) to abacaba)"};
+    std::string query24 = {R"(insert (name = "vasya", age = 15) to abacaba)"};
+    std::string query25 = {R"(insert (name = "admin", age = 17) to abacaba)"};
+
+    std::string query26 = {R"(users join abacaba on name == login)"};
+    std::string query27 = {R"(select name, age, password_hash from users join abacaba on name == login where true)"};
     // std::vector<Token> data;
     // makeListOfTokens(query16, data);
     // Node* ast = MakeAST(data, 0, data.size());
@@ -49,6 +56,12 @@ is_admin = true,
     q.execute(query1);
     q.execute(query2);
     q.execute(query4);
+
+    q.execute(query22);
+    q.execute(query23);
+    q.execute(query24);
+    q.execute(query25);
+    Table* qq = q.execute(query27);
     // Table* table = q.execute(query16);
     // std::string qq{"afasfaa"};
     // table->rename(qq);

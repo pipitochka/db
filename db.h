@@ -224,7 +224,27 @@ private:
         return newTable;
     }
 
-    Table* join(std::vector<Token>& tokens) {}
+    Table* join(Table* table1, Table* table2, Node *right) {
+        std::vector<Restriction> restrictions1 = table1->getRestriction();
+        std::vector<Statement> statements1 = table1->getStatements();
+        std::vector<Restriction> restrictions2 = table2->getRestriction();
+        std::vector<Statement> statements2 = table2->getStatements();
+        std::vector<Restriction> newRestrictions = restrictions1;
+        newRestrictions.insert(newRestrictions.end(), restrictions2.begin(), restrictions2.end());
+        Table *table = new Table(newRestrictions);
+        for (int j = 0; j < statements1.size(); j++) {
+            for (int k = 0; k < statements2.size(); k++) {
+                Statement s = statements1[j];
+                s.data.insert(s.data.end(), statements2[k].data.begin(), statements2[k].data.end());
+                std::variant<int32_t, bool, std::string, bytes> q;
+                q = CalculateValue(newRestrictions, s, right);
+                if (std::get<bool>(q)) {
+                    table->addStatement(s);
+                }
+            }
+        }
+        return table;
+    }
 
     Table* update(Node* left, Node* right, Table* table) {
         std::vector<Restriction> restrictions = table->getRestriction();
@@ -284,6 +304,23 @@ private:
                     return deleteExpression(root->right, table);
                 }
             }
+            else if (root->token.value == "join") {
+                Table* table1;
+                Table* table2;
+                if (root->left->token.type == IDENT) {
+                    table1 = database.findTable(root->left->token.value);
+                }
+                else {
+                    table1 = std::get<Table*>(Parse(root->left));;
+                }
+                if (root->mid->token.type == IDENT) {
+                    table2 = database.findTable(root->mid->token.value);
+                }
+                else {
+                    table2 = std::get<Table*>(Parse(root->mid));;
+                }
+                return join(table1, table2, root->right);
+            }
         }
         else {
             throw std::invalid_argument("Invalid text");
@@ -335,27 +372,17 @@ public:
                     }
                     return qq;
                 }
-                if (tokens[0].value == "join") {
-                    Table* q = join(tokens);
-                    if (q == nullptr) {
-                        throw std::invalid_argument("Join failed");
-                    }
-                    return q;
-                }
-                if (tokens[0].value == "create" && tokens[2].value == "index") {
-                    Table* q = join(tokens);
-                    if (q == nullptr) {
-                        throw std::invalid_argument("Creation index failed");
-                    }
-                    return q;
-                }
                 throw std::invalid_argument("Invalid syntax");
             }
             else {
-                throw std::invalid_argument("Invalid type of keyword argument");
+                Node* q = MakeAST(tokens, 0, tokens.size());
+                Table* qq = std::get<Table*>(Parse(q));
+                if (q == nullptr) {
+                    throw std::invalid_argument("Select failed");
+                }
+                return qq;
             }
         }
-
 
     void addTable(Table* table) {
         database.addTable(*table);

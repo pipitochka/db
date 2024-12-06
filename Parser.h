@@ -95,7 +95,6 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
             }
 
         }
-
         else if (tokens[i].type == KWORD) {
             if (tokens[i].value == "select") {
                 Node* a = new Node({tokens[i], nullptr, nullptr, nullptr, nullptr});
@@ -109,16 +108,19 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
                 }
                 k++;
                 int kk = t;
-                if (tokens[k].type == IDENT) {
+
+                while (tokens[kk].value != "where") {
+                    kk--;
+                }
+
+                if (tokens[k].type == IDENT && kk - k == 1) {
                     c->token.value = tokens[k].value;
                     c->token.type = IDENT;
                 }
                 else {
                     c = MakeAST(tokens, k, kk);
                 }
-                while (tokens[kk].value != "where") {
-                    kk--;
-                }
+
                 d = MakeAST(tokens, kk + 1, t);
                 d->parent = a;
                 c->parent = a;
@@ -204,6 +206,26 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
                     q = a;
                 }
                 i = t;
+            }
+            else if (tokens[i].value == "join") {
+                Node* a = new Node({tokens[i], nullptr, nullptr, nullptr, nullptr});
+                a->left = q;
+                q->parent = a;
+
+                int kk = t;
+                while (tokens[kk].value != "on") {
+                    kk--;
+                }
+
+                Node* d = new Node({Token({NUL}), nullptr, nullptr, nullptr, nullptr});
+                d = MakeAST(tokens, kk + 1, t);
+                d->parent = a;
+                a->right = d;
+
+                Node* c = new Node({Token({NUL}), nullptr, nullptr, nullptr, nullptr});
+                c = MakeAST(tokens, i + 1, kk);
+                c->parent = a;
+                a->mid = c;
             }
 
         }
