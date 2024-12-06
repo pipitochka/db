@@ -110,16 +110,21 @@ public:
         if (i < statement.size() && statement[i].first) {
             switch (restrictions[i].type.first) {
                 case int_32:
-                    newStatement.data.push_back(std::get<int>(statement[i].second));
+                    newStatement.data.push_back(stoi(std::get<std::string>(statement[i].second)));
                     break;
                 case string:
-                    newStatement.data.push_back(std::get<std::string>(statement[i].second));
+                    newStatement.data.push_back(std::get<std::string>(statement[i].second)) ;
                     break;
                 case byte:
-                    newStatement.data.push_back(std::get<bytes>(statement[i].second));
+                    newStatement.data.push_back(bytesFromStringToBytes(statement[i].second)) ;
                     break;
                 case boolean:
-                    newStatement.data.push_back(std::get<bool>(statement[i].second));
+                    if (std::get<std::string>(statement[i].second) == "true") {
+                        newStatement.data.push_back(true);
+                    }
+                    else if (std::get<std::string>(statement[i].second) == "false") {
+                        newStatement.data.push_back(false);
+                    }
                     break;
                 default: throw std::invalid_argument("Bad type col" + std::to_string(i));
             }

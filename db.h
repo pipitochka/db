@@ -176,7 +176,19 @@ private:
         }
     }
 
-    Table* deleteExpression(std::vector<Token>& tokens) {}
+    Table* deleteExpression(Node* left, Table* table) {
+        std::vector<Restriction> restrictions = table->getRestriction();
+        std::vector<Statement> statements = table->getStatements();
+        for (int i = statements.size() - 1; i>= 0; i--) {
+            std::variant<int32_t, bool, std::string, bytes> q;
+            q = CalculateValue(restrictions, statements[i], left);
+            if (std::get<bool>(q)) {
+                statements.erase(statements.begin() + i);
+            }
+        }
+        table->changeStatement(statements);
+        return table;
+    }
 
     Table* select(Node* left, Node* right, Table* table) {
         std::vector<Restriction> restrictions = table->getRestriction();
@@ -252,7 +264,7 @@ private:
                     return select(root->left, root->right, table);
                 }
             }
-            if (root->token.value == "update") {
+            else if (root->token.value == "update") {
                 if (root->mid->token.type == IDENT) {
                     Table* table = database.findTable(root->mid->token.value);
                     return update(root->left, root->right, table);
@@ -260,6 +272,16 @@ private:
                 else {
                     Table* table = std::get<Table*>(Parse(root->mid));
                     return update(root->left, root->right, table);
+                }
+            }
+            else if (root->token.value == "delete") {
+                if (root->mid->token.type == IDENT) {
+                    Table* table = database.findTable(root->mid->token.value);
+                    return deleteExpression(root->right, table);
+                }
+                else {
+                    Table* table = std::get<Table*>(Parse(root->mid));
+                    return deleteExpression(root->right, table);
                 }
             }
         }
@@ -290,11 +312,12 @@ public:
                     return q;
                 }
                 if (tokens[0].value == "delete") {
-                    Table* q = deleteExpression(tokens);
+                    Node* q = MakeAST(tokens, 0, tokens.size());
+                    Table* qq = std::get<Table*>(Parse(q));
                     if (q == nullptr) {
-                        throw std::invalid_argument("Delete failed");
+                        throw std::invalid_argument("Select failed");
                     }
-                    return q;
+                    return qq;
                 }
                 if (tokens[0].value == "update") {
                     Node* q = MakeAST(tokens, 0, tokens.size());

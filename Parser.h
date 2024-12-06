@@ -28,26 +28,36 @@ int CheckNice(std::vector<Token> &data, int i) {
     }
     return i;
 }
+int CheckNice1(std::vector<Token> &data, int i) {
+    int l = 1, r = 0;
+    i++;
+    while ((l != r) && (i < data.size())) {
+        if (data[i].value == "|") {
+            r++;
+        }
+        i++;
+    }
+    return i;
+}
 
 Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
     Node* q = nullptr;
     for (int i = j; i < t; i++) {
-        if (tokens[i].type == OPERATOR) {
-            Node* b = q;
-            while ((b->parent != nullptr) && (b->parent->token.type == OPERATOR) && (b->parent->token.order <= tokens[i].order)) {b = b->parent;}
-            if (b->parent == nullptr) {
-                Node* a = new Node({tokens[i], b, nullptr, nullptr});
-                b->parent = a;
-                q = a;
+        if (tokens[i].type == OPERATOR && tokens[i].value == "|") {
+            int tt = CheckNice1(tokens, i + 1);
+            Node* a = MakeAST(tokens, i + 1, tt - 1);
+            Node* b = new Node({{OPERATOR, "|", 30}, a, nullptr, nullptr});
+            a->parent = b;
+            if (q != nullptr) {
+                q->right = b;
+                b->parent = q;
+                q = (q->right);
             }
             else {
-                Node* a = new Node({tokens[i], b, nullptr, b->parent});
-                b->parent->right = a;
-                b->parent = a;
-                q = a;
+                q = b;
             }
-
-            }
+            i = tt - 1;
+        }
         else if (tokens[i].type == NUM || tokens[i].type == BOOL|| tokens[i].type == BYTES || tokens[i].type == STRING || tokens[i].type == IDENT) {
             Node* a = new Node({tokens[i], nullptr, nullptr, nullptr});
             if (q != nullptr) {
@@ -67,6 +77,25 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
             q = (q->right);
             i = tt - 1;
         }
+        else if (tokens[i].type == OPERATOR) {
+            if (q != nullptr){
+                Node* b = q;
+                while ((b->parent != nullptr) && (b->parent->token.type == OPERATOR) && (b->parent->token.order <= tokens[i].order)) {b = b->parent;}
+                if (b->parent == nullptr) {
+                    Node* a = new Node({tokens[i], b, nullptr, nullptr});
+                    b->parent = a;
+                    q = a;
+                }
+                else {
+                    Node* a = new Node({tokens[i], b, nullptr, b->parent});
+                    b->parent->right = a;
+                    b->parent = a;
+                    q = a;
+                }
+            }
+
+        }
+
         else if (tokens[i].type == KWORD) {
             if (tokens[i].value == "select") {
                 Node* a = new Node({tokens[i], nullptr, nullptr, nullptr, nullptr});
@@ -106,7 +135,7 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
                 }
                 i = t;
             }
-            if (tokens[i].value == "update") {
+            else if (tokens[i].value == "update") {
                 Node* a = new Node({tokens[i], nullptr, nullptr, nullptr, nullptr});
                 int kk = t;
                 while (tokens[kk].value != "where") {
@@ -150,6 +179,33 @@ Node* MakeAST(std::vector<Token>& tokens, int j, int t) {
                 }
                 i = t;
             }
+            else if (tokens[i].value == "delete") {
+                Node* a = new Node({tokens[i], nullptr, nullptr, nullptr, nullptr});
+                int kk = t;
+                while (tokens[kk].value != "where") {
+                    kk--;
+                }
+                Node* d = new Node({Token({NUL}), nullptr, nullptr, nullptr, nullptr});
+                d = MakeAST(tokens, kk + 1, t);
+                d->parent = a;
+                a->right = d;
+
+                Node* c = new Node({Token({NUL}), nullptr, nullptr, nullptr, nullptr});
+                c = MakeAST(tokens, 1, kk);
+                c->parent = a;
+                a->mid = c;
+
+
+                if (q != nullptr) {
+                    q->right = a;
+                    a->parent = q;
+                }
+                else {
+                    q = a;
+                }
+                i = t;
+            }
+
         }
     }
 
@@ -378,6 +434,18 @@ std::variant<int32_t, bool, std::string, bytes> CalculateValue(std::vector<Restr
                     throw std::invalid_argument("Invalid text");
                 }
 
+            }
+
+        }
+        if (root->token.value == "|") {
+            std::variant<int32_t, bool, std::string, bytes> left = CalculateValue(restrictions, statement, root->left);
+            if (std::holds_alternative<std::string>(left)) {
+                std::string s = std::get<std::string>(left);
+                return static_cast<int32_t>(s.length());
+            }
+            if (std::holds_alternative<bytes>(left)) {
+                bytes b = std::get<bytes>(left);
+                return static_cast<int32_t>(b.size());;
             }
         }
     }

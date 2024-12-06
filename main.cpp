@@ -6,7 +6,7 @@ int main()
     // db q;
     std::string query1 = {R"(create table users ({key, autoincrement} id : int32, {unique} login: string[32], password_hash: bytes[8], is_admin: bool = false))"};
     std::string query2 = {R"(insert (,"vasya", 0xdeadbeefdeadbeef) to users)"};
-    std::string query3 = {R"(insert (login = "vasya", password_hash = 0xdeadbeefdeadbeef) to users)"};
+    std::string query3 = {R"(insert (login = "vasy", password_hash = 0xdeadbeefdeadbeef) to users)"};
     std::string query4 = {R"(insert (,"admin", 0x0000000000000000, true) to users)"};
     std::string query5 = {R"(insert (
 is_admin = true,
@@ -26,7 +26,9 @@ is_admin = true,
     std::string query16 = {R"(select id, login from users where is_admin || id < 10)"};
     std::string query17 = {R"(update users set is_admin = true where login == "vasya")"};
     std::string query18 = {R"(update users set login = login + "_deleted", is_admin = false where password_hash < 0x00000000ffffffff)"};
-
+    std::string query19 = {R"(delete users where login == "vasya")"};
+    std::string query20= {R"(insert (,"vasy", 0xdeadbeefdeadbeef) to users)"};
+    std::string query21 = {R"(delete users where |login| % 2 == 0)"};
 
     // std::vector<Token> data;
     // makeListOfTokens(query16, data);
@@ -45,13 +47,14 @@ is_admin = true,
     //  deleteTree(ast);
     db q;
     q.execute(query1);
-    q.execute(query3);
-    q.execute(query5);
-    Table* table = q.execute(query16);
-    std::string qq{"afasfaa"};
-    table->rename(qq);
-    q.addTable(table);
-    q.execute(query17);
-    q.execute(query18);
+    q.execute(query2);
+    q.execute(query4);
+    // Table* table = q.execute(query16);
+    // std::string qq{"afasfaa"};
+    // table->rename(qq);
+    // q.addTable(table);
+    // q.execute(query17);
+    // q.execute(query18);
+    // q.execute(query21);
     return 0;
 }
