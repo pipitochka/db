@@ -25,6 +25,10 @@ is_admin = true,
     std::string query15 = {R"(1 > 3)"};
     std::string query16 = {R"(select id, login from users where is_admin || id < 10)"};
 
+    // std::vector<Token> data;
+    // makeListOfTokens(query16, data);
+    // Node* ast = MakeAST(data, 0, data.size());
+
     // db q;
     // q.execute(query1);
     // q.execute(query3);

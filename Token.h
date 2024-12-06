@@ -5,38 +5,10 @@ std::string keywords[] = { "insert",  "select", "update", "join", "delete"};
 
 enum tok_names {NUL, KWORD, IDENT, NUM, BYTES, STRING, OPERATOR, DELIM};
 
-//enum tok_names {, , , , OPERATOR, DELIM};
-
-//enum tok_names {KWORD, IDENT, DELIM};
-
-class Token
-{
-private:
-    tok_names token_name;
-    std::string token_value;
-    int value;
-public:
-    Token(tok_names _token_name, std::string _token_value) {
-        token_name = _token_name;
-        token_value = _token_value;
-    }
-    Token(tok_names _token_name, std::string _token_value, int q) {
-        token_name = _token_name;
-        token_value = _token_value;
-        value = q;
-    }
-    tok_names getTokeName() {
-        return token_name;
-    }
-
-    std::string &getTokenValue() {
-        return token_value;
-    }
-
-    int getValue() {
-        return value;
-    }
-    Token() = default;
+struct Token {
+    enum tok_names type;
+    std::string value;
+    int order;
 };
 
 std::string lower(std::string& s) {
@@ -53,7 +25,7 @@ int isByte(int i, std::string &data, std::vector<Token> &tokens) {
         while ((j < data.size()) && ((data[j] >= '0' && data[j] <= '1') || (data[j] >= 'a' && data[j] <= 'f'))) {
             j++;
         }
-        tokens.push_back(Token(BYTES, data.substr(i + 2, j - i - 2)));
+        tokens.push_back(Token({BYTES, data.substr(i + 2, j - i - 2)}));
         return j - i;
     }
     return 0;
@@ -65,7 +37,7 @@ int isNubmer(int i, std::string &data, std::vector<Token> &tokens) {
         while ((j < data.size()) && (data[j] >= '0' && data[j] <= '9')) {
             j++;
         }
-        tokens.push_back(Token(NUM, data.substr(i, j - i)));
+        tokens.push_back(Token({NUM, data.substr(i, j - i)}));
         return j - i;
     }
     else return 0;
@@ -75,7 +47,7 @@ int isString(int i, std::string &data, std::vector<Token> &tokens) {
     if (data[i] == '\"') {
         int j = i + 1;
         while ((j < data.size()) && (data[j] != '\"')) {j++;}
-        tokens.push_back(Token(STRING, data.substr(i+1, j - i - 1)));
+        tokens.push_back(Token({STRING, data.substr(i+1, j - i - 1)}));
         return j - i + 1;
     }
     return 0;
@@ -83,51 +55,51 @@ int isString(int i, std::string &data, std::vector<Token> &tokens) {
 
 int isBinOperator(int i, std::string &data, std::vector<Token> &tokens) {
     if (data[i] == '+' || data[i] == '-') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 6));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 1), 6}));
         return 1;
     }
     if (data[i] == '*' || data[i] == '/' || data[i] == '%') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 5));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 1), 5}));
         return 1;
     }
     if ((i+1 < data.size()) && (data[i] == '<' || data[i] == '>') && data[i + 1] == '=') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 2), 9));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 2), 9}));
         return 2;
     }
     if ((i+1 < data.size()) && (data[i] == '!' ) && data[i + 1] == '=') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 2), 10));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 2), 10}));
         return 2;
     }
     if ((data[i] == '<' || data[i] == '>')) {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 9));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 1), 9}));
         return 1;
     }
     if ((data[i] == data[i+1] && data[i+1] == '&')) {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 2), 14));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 2), 14}));
         return 2;
     }
     if ((data[i] == data[i+1] && data[i+1] == '|')) {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 2), 15));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 2), 15}));
         return 2;
     }
     if ((data[i] == data[i+1] && data[i+1] == '^')) {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 2), 12));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 2), 12}));
         return 2;
     }
     if (data[i] == '!') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 3));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 1), 3}));
         return 1;
     }
     if (data[i] == '=' && data[i + 1] == '=') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 2), 10));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 2), 10}));
         return 2;
     }
     if (data[i] == '=' && data[i + 1] != '=') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 16));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 1), 16}));
         return 1;
     }
     if (data[i] == '|') {
-        tokens.push_back(Token(OPERATOR, data.substr(i, 1), 20));
+        tokens.push_back(Token({OPERATOR, data.substr(i, 1), 20}));
         return 1;
     }
     return 0;
@@ -142,7 +114,7 @@ int isIdentifier(int i, std::string &data, std::vector<Token> &tokens) {
         std::string token_value = data.substr(i, j - i);
         for (auto element : keywords) {
             if (element == lower(token_value)) {
-                tokens.push_back(Token(KWORD, element));
+                tokens.push_back(Token({KWORD, element}));
                 return j - i;
             }
         }
@@ -153,10 +125,10 @@ int isIdentifier(int i, std::string &data, std::vector<Token> &tokens) {
             }
             std::string token_value = data.substr(i, j - i);
             if (lower(token_value) == "create table") {
-                tokens.push_back(Token(KWORD, "createtable"));
+                tokens.push_back(Token({KWORD, "createtable"}));
             }
         }
-        tokens.push_back(Token(IDENT, token_value));
+        tokens.push_back(Token({IDENT, token_value}));
         return j - i;
     }
     else {return 0;}
@@ -165,28 +137,28 @@ int isIdentifier(int i, std::string &data, std::vector<Token> &tokens) {
 int isDelimiter(int i, std::string &data, std::vector<Token> &tokens) {
     switch (data[i]) {
         case ',':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         case '(':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         case ')':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         case '{':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         case '}':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         case ':':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         case '[':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         case ']':
-            tokens.push_back(Token(DELIM, data.substr(i, 1)));
+            tokens.push_back(Token({DELIM, data.substr(i, 1)}));
             return 1;
         default:
             return 0;
