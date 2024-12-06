@@ -238,7 +238,7 @@ public:
         makeListOfTokens(data, tokens);
         try {
             if (tokens[0].getTokeName() == KWORD) {
-                if (tokens[0].getTokenValue() == "create" && tokens[1].getTokenValue() == "table") {
+                if (tokens[0].getTokenValue() == "createtable") {
                     Table* q = createTable(tokens);
                     if (q == nullptr) {
                         throw std::invalid_argument("Table creation failed");

@@ -1,7 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-std::string keywords[] = {"create", "insert",  "select", "update", "join", "delete"};
+std::string keywords[] = { "insert",  "select", "update", "join", "delete"};
 
 enum tok_names {NUL, KWORD, IDENT, NUM, BYTES, STRING, OPERATOR, DELIM};
 
@@ -144,6 +144,16 @@ int isIdentifier(int i, std::string &data, std::vector<Token> &tokens) {
             if (element == lower(token_value)) {
                 tokens.push_back(Token(KWORD, element));
                 return j - i;
+            }
+        }
+        if (lower(token_value) == "create") {
+            j++;
+            while ((j < data.size()) && (data[j] <= 'Z' && data[j] >= 'A') ||  (data[j] <= 'z' && data[j] >= 'a') || (data[j] <= '9' && data[j] >= '0') || data[j] == '_') {
+                j++;
+            }
+            std::string token_value = data.substr(i, j - i);
+            if (lower(token_value) == "create table") {
+                tokens.push_back(Token(KWORD, "createtable"));
             }
         }
         tokens.push_back(Token(IDENT, token_value));
