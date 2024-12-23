@@ -1,4 +1,4 @@
-# Install script for directory: /Users/artemakulov/Study/2 course/C++/db
+# Install script for directory: /Users/artemakulov/Study/2 course/1 sem/C++/db
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/artemakulov/Study/2 course/C++/db/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/artemakulov/Study/2 course/1 sem/C++/db/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

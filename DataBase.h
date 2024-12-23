@@ -7,6 +7,7 @@
 #include <string>
 #include <variant>
 #include "bytes.h"
+#include "algorithm"
 
 enum types {int_32, byte, string, boolean};
 

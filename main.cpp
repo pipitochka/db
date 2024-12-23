@@ -41,10 +41,11 @@ is_admin = true,
     // makeListOfTokens(query16, data);
     // Node* ast = MakeAST(data, 0, data.size());
 
-    // db q;
-    // q.execute(query1);
-    // q.execute(query3);
-    // q.execute(query5);
+    db q;
+    q.execute(query1);
+    q.execute(query3);
+    q.execute(query5);
+    q.execute(query16);
     // std::vector<Restriction> restrictions;
     // Statement statement;
     //  std::vector<Token> data;
@@ -52,16 +53,16 @@ is_admin = true,
     //  Node* ast = MakeAST(data, 0, data.size());
     // std::variant<int32_t, bool, std::string, bytes> qq = CalculateValue(restrictions, statement, ast);
     //  deleteTree(ast);
-    db q;
-    q.execute(query1);
-    q.execute(query2);
-    q.execute(query4);
-
-    q.execute(query22);
-    q.execute(query23);
-    q.execute(query24);
-    q.execute(query25);
-    Table* qq = q.execute(query27);
+    // db q;
+    // q.execute(query1);
+    // q.execute(query2);
+    // q.execute(query4);
+    //
+    // q.execute(query22);
+    // q.execute(query23);
+    // q.execute(query24);
+    // q.execute(query25);
+    // Table* qq = q.execute(query27);
     // Table* table = q.execute(query16);
     // std::string qq{"afasfaa"};
     // table->rename(qq);
